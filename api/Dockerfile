@@ -4,7 +4,7 @@ RUN go version
 ENV GOPATH=/
 
 WORKDIR /app
-COPY . /app
+COPY .. /app
 
 # install psql
 RUN apt-get update
