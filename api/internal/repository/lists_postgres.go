@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"ToDo/pkg/entities"
+	"api/pkg/entities"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 )

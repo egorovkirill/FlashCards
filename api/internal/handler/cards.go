@@ -1,7 +1,9 @@
 package handler
 
 import (
-	"ToDo/pkg/entities"
+	"api/pkg/entities"
+	"encoding/json"
+	"github.com/Shopify/sarama"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -30,6 +32,29 @@ func (h *Handler) CreateCard(c *gin.Context) {
 		logrus.Errorf("Error parsing input: %s", err.Error())
 		return
 	}
+
+	// Create a new Kafka producer
+	producer, err := sarama.NewAsyncProducer([]string{"kafka:9092"}, nil)
+	if err != nil {
+		logrus.Errorf("Error creating Kafka producer: %s", err.Error())
+		return
+	}
+
+	// Convert the input to a JSON string
+	data, err := json.Marshal(input)
+	if err != nil {
+		logrus.Errorf("Error marshaling input to JSON: %s", err.Error())
+		return
+	}
+
+	// Create a new Kafka message containing the JSON data
+	msg := &sarama.ProducerMessage{
+		Topic: "card-creation",
+		Value: sarama.StringEncoder(data),
+	}
+
+	// Send the message to Kafka
+	producer.Input() <- msg
 
 	_, err = h.service.CreateCard(listId, input)
 	if err != nil {

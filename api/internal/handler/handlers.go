@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"ToDo/internal/service"
+	"api/internal/service"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"ToDo/pkg/entities"
+	"api/pkg/entities"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"ToDo/internal/repository"
-	"ToDo/pkg/entities"
+	"api/internal/repository"
+	"api/pkg/entities"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"

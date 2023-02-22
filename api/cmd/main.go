@@ -1,9 +1,9 @@
 package main
 
 import (
-	handler "ToDo/internal/handler"
-	repository "ToDo/internal/repository"
-	"ToDo/internal/service"
+	handler "api/internal/handler"
+	repository "api/internal/repository"
+	"api/internal/service"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
