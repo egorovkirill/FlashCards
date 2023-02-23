@@ -1,2 +1,3 @@
 api/.env
 db/postgresql/.database
+imageGeneration/.env
