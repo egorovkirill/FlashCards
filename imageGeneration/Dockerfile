@@ -7,6 +7,7 @@ WORKDIR /image
 COPY .. /image
 
 
+EXPOSE 8000
 
 RUN go mod download
 RUN go build -o main ./cmd/main.go

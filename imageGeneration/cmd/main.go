@@ -1,62 +1,69 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/Shopify/sarama"
-	"io"
+	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"imageGeneration/internal/database"
+	"imageGeneration/internal/handler/KafkaRPC"
+	service "imageGeneration/internal/service"
 	"log"
-	"net/http"
+	"os"
 )
 
 type Card struct {
-	Front string `json:"front"`
+	Id           int    `json:"id"`
+	Front        string `json:"front"`
+	Back         string `json:"back"`
+	ImageLink    string `json:"imageLink"`
+	VoiceMessage string `json:"voiceMessage"`
 }
-
-type Response struct {
-	Data []struct {
-		URL string `json:"url"`
-	} `json:"data"`
-}
-
-type Request struct {
-	Prompt         string `json:"prompt"`
-	NumImages      int    `json:"num_images"`
-	Size           string `json:"size"`
-	ResponseFormat string `json:"response_format"`
-}
-
-var reqHeaders = map[string]string{
-	"Content-Type":  "application/json",
-	"Authorization": "Bearer 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",
-}
-
-var apiURL = "https://api.openai.com/v1/images/generations"
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	if err := initConfig(); err != nil {
+		log.Fatal("Error loading config")
+	}
+
+	db := database.ConnectToPostgresDB(database.Config{
+		Host:     viper.GetString("db.host"),
+		Port:     viper.GetString("db.port"),
+		Username: viper.GetString("db.username"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   viper.GetString("db.dbname"),
+		SSLMode:  viper.GetString("db.sslmode"),
+	})
+
+	repository := database.NewRepository(db)
+	services := service.NewService(repository)
+	handlers := KafkaRPC.NewHandler(services)
+
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 
-	// Replace "localhost:9092" with your Kafka broker's address
 	consumer, err := sarama.NewConsumer([]string{"kafka:9092"}, config)
 	if err != nil {
 		log.Fatal("Error creating consumer: ", err)
 	}
+
 	defer func() {
 		if err := consumer.Close(); err != nil {
 			log.Fatal("Error closing consumer: ", err)
 		}
 	}()
-
-	// Replace "test" with the name of your Kafka topic
 	partitionConsumer, err := consumer.ConsumePartition("card-creation", 0, sarama.OffsetNewest)
 	if err != nil {
 		log.Fatal("Error creating partition consumer: ", err)
 	}
+
 	defer func() {
 		if err := partitionConsumer.Close(); err != nil {
-			log.Fatal("Error closing partition consumer: ", err)
+			log.Fatal("Error closing consumer: ", err)
 		}
 	}()
 
@@ -64,56 +71,27 @@ func main() {
 	for {
 		select {
 		case msg := <-partitionConsumer.Messages():
-			// Replace this with your actual processing logic
 			var input Card
-			fmt.Println("Received message: ", string(msg.Value))
 			err := json.Unmarshal([]byte(string(msg.Value)), &input)
 			if err != nil {
-				fmt.Println(err)
+				logrus.Errorf("Error parsing kafka data: %s", err)
 				return
 			}
-			fmt.Println(GenerateImage(input.Front))
+			err = handlers.SetImageToCard(input.Id, input.Front)
+			if err != nil {
+				logrus.Errorf("Error generating image: %s", err.Error())
+				return
+			}
+
 		case err := <-partitionConsumer.Errors():
-			fmt.Println("222222o")
-			log.Println("Error: ", err)
-			return
+			logrus.Errorf("Error recieve data from kafka queue: %s", err)
+			continue
 		}
 	}
 }
 
-func GenerateImage(prompt string) (string, error) {
-	request := Request{
-		Prompt:         prompt,
-		NumImages:      1,
-		Size:           "256x256",
-		ResponseFormat: "url",
-	}
-
-	payload, err := json.Marshal(request)
-	if err != nil {
-		return "", err
-	}
-
-	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(payload))
-	if err != nil {
-		return "", err
-	}
-
-	for key, value := range reqHeaders {
-		req.Header.Set(key, value)
-	}
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	var response Response
-	if err := json.Unmarshal(body, &response); err != nil {
-		return "", err
-	}
-	return response.Data[0].URL, nil
+func initConfig() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }

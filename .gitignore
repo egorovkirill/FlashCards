@@ -1,5 +1,5 @@
 api/.env
-db/postgresql/.database
+db/postgresql/.database/
 imageGeneration/.env
 db/postgresql/.database/postgres/data/base/5/24719
 db/postgresql/.database/postgres/data/base/5/24719

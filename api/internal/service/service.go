@@ -24,6 +24,8 @@ type ListCards interface {
 	GetCardsInList(userId, listID int) ([]entities.Cards, error)
 	GetCardById(userID, listID, itemID int) ([]entities.Cards, error)
 	DeleteCardById(UserID, itemID int) error
+	SetBackToCard(cardID int, translate string) error
+	SetImageToCard(cardID int, image string) error
 }
 
 type Service struct {

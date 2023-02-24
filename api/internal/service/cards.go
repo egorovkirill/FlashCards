@@ -29,3 +29,11 @@ func (r *CardsService) GetCardById(userID, listID, itemID int) ([]entities.Cards
 func (r *CardsService) DeleteCardById(UserID, itemID int) error {
 	return r.repo.DeleteCardById(UserID, itemID)
 }
+
+func (r *CardsService) SetImageToCard(cardID int, image string) error {
+	return r.repo.SetImageToCard(cardID, image)
+}
+
+func (r *CardsService) SetBackToCard(cardID int, translate string) error {
+	return r.repo.SetImageToCard(cardID, translate)
+}

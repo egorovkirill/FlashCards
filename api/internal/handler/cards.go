@@ -33,6 +33,11 @@ func (h *Handler) CreateCard(c *gin.Context) {
 		return
 	}
 
+	input.Id, err = h.service.CreateCard(listId, input)
+	if err != nil {
+		return
+	}
+
 	// Create a new Kafka producer
 	producer, err := sarama.NewAsyncProducer([]string{"kafka:9092"}, nil)
 	if err != nil {
@@ -40,6 +45,11 @@ func (h *Handler) CreateCard(c *gin.Context) {
 		return
 	}
 
+	defer func() {
+		if err := producer.Close(); err != nil {
+			logrus.Errorf("Error closing Kafka producer: %s", err.Error())
+		}
+	}()
 	// Convert the input to a JSON string
 	data, err := json.Marshal(input)
 	if err != nil {
@@ -56,11 +66,8 @@ func (h *Handler) CreateCard(c *gin.Context) {
 	// Send the message to Kafka
 	producer.Input() <- msg
 
-	_, err = h.service.CreateCard(listId, input)
-	if err != nil {
-		return
-	}
 	c.JSON(http.StatusOK, http.StatusOK)
+
 }
 
 func (h *Handler) GetCardsInList(c *gin.Context) {

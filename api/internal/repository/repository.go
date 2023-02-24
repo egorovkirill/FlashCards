@@ -23,6 +23,8 @@ type ListCards interface {
 	GetCardsInList(userId, listID int) ([]entities.Cards, error)
 	GetCardById(userID, listID, itemID int) ([]entities.Cards, error)
 	DeleteCardById(userID, itemID int) error
+	SetImageToCard(cardID int, image string) error
+	SetTranslateToCard(cardID int, translate string) error
 }
 
 type Repository struct {

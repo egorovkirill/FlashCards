@@ -57,6 +57,24 @@ func (c *CardPostgres) GetCardById(userID, listID, itemID int) ([]entities.Cards
 	return response, nil
 }
 
+func (c *CardPostgres) SetImageToCard(cardID int, image string) error {
+	query := fmt.Sprintf("UPDATE cards SET imagelink = $1 WHERE id = $2")
+	_, err := c.db.Exec(query, image, cardID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *CardPostgres) SetTranslateToCard(cardID int, translate string) error {
+	query := fmt.Sprintf("UPDATE cards SET back = $1 WHERE id = $2")
+	_, err := c.db.Exec(query, translate, cardID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *CardPostgres) DeleteCardById(userID, itemID int) error {
 	query := fmt.Sprintf("DELETE FROM cards USING listcards, userlists WHERE cards.id = listcards.item_id AND listcards.list_id = userlists.list_id AND userlists.user_id = $1 AND cards.id = $2")
 	_, err := c.db.Exec(query, userID, itemID)
