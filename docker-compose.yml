@@ -17,6 +17,7 @@ services:
 
  migrate:
   image: arigaio/atlas:latest
+  restart: on-failure
   command: >
    migrate apply 1
    --url "postgresql://postgres:postgres@db:5432/postgres?search_path=public&sslmode=disable"

@@ -2,11 +2,13 @@ package KafkaRPC
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Shopify/sarama"
 	"imageGeneration/internal/service"
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 type Handler struct {
@@ -35,7 +37,7 @@ func (h *Handler) InitKafka() sarama.PartitionConsumer {
 }
 
 func (h *Handler) SetImageToCard(cardID int, prompt string) error {
-	req, err := createRequest(prompt)
+	req, err := GetImage(prompt)
 	if err != nil {
 		return err
 	}
@@ -56,16 +58,46 @@ func (h *Handler) SetImageToCard(cardID int, prompt string) error {
 	if err != nil {
 		return err
 	}
-
 	var response Response
 	if err := json.Unmarshal(body, &response); err != nil {
 		return err
 	}
+	if len(response.Data) != 0 {
+		err = h.service.SetImageToCard(cardID, response.Data[0].URL)
+		if err != nil {
+			return err
+		}
+	} else {
+		return http.ErrBodyNotAllowed
+	}
 
-	err = h.service.SetImageToCard(cardID, response.Data[0].URL)
+	return nil
+}
+
+func (h *Handler) SetTranslateToCard(cardID int, prompt string) error {
+	url := fmt.Sprintf("https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=%s&lang=en-ru&text=%s", os.Getenv("YANDEX_API"), prompt)
+	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
-	return nil
+	defer resp.Body.Close()
 
+	var lookupResp LookupResponse
+	err = json.NewDecoder(resp.Body).Decode(&lookupResp)
+	if err != nil {
+		return err
+	}
+	fmt.Println(lookupResp)
+	if len(lookupResp.Def) > 0 {
+		if len(lookupResp.Def[0].Tr) > 0 {
+			err = h.service.SetTranslateToCard(cardID, lookupResp.Def[0].Tr[0].Text)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		return http.ErrBodyNotAllowed
+	}
+
+	return nil
 }

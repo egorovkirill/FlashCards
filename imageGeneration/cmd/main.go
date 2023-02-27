@@ -57,6 +57,11 @@ func main() {
 			err = handlers.SetImageToCard(input.Id, input.Front)
 			if err != nil {
 				logrus.Errorf("Error generating image: %s", err.Error())
+			}
+
+			err = handlers.SetTranslateToCard(input.Id, input.Front)
+			if err != nil {
+				logrus.Errorf("Error generating translate: %s", err.Error())
 				return
 			}
 

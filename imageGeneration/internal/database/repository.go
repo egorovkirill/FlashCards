@@ -1,10 +1,11 @@
 package database
 
 import "github.com/jmoiron/sqlx"
+import _ "github.com/lib/pq"
 
 type ListCards interface {
-	//SetTranslateToCard(cardID int, translate string) error
 	SetImageToCard(cardID int, image string) error
+	SetTranslateToCard(cardID int, translate string) error
 }
 
 type Repository struct {

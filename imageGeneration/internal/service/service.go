@@ -6,6 +6,7 @@ import (
 
 type ListCards interface {
 	SetImageToCard(cardID int, prompt string) error
+	SetTranslateToCard(cardID int, prompt string) error
 }
 
 type Service struct {
