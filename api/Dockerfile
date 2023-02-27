@@ -1,5 +1,5 @@
 FROM golang:latest
-
+EXPOSE 8000
 RUN go version
 ENV GOPATH=/
 

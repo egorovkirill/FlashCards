@@ -3,7 +3,7 @@ version: '3.8'
 services:
  app:
   ports:
-   - "8000:8000"
+   - 8000:8000
   restart: always
   build: ./api
   command: /app/main
@@ -11,6 +11,7 @@ services:
    - db
    - migrate
    - kafka
+
   environment:
    - DB_PASSWORD=postgres
 
@@ -38,11 +39,13 @@ services:
    - 5436:5432
 
  image:
+  restart: always
   build: ./imageGeneration
   depends_on:
    - kafka
 
  kafka:
+  restart: always
   image: confluentinc/cp-kafka:latest
   ports:
    - 29092:29092
@@ -58,8 +61,8 @@ services:
    - zookeeper
 
  zookeeper:
+  restart: always
   image: zookeeper
   ports:
    - "2181:2181"
-
 

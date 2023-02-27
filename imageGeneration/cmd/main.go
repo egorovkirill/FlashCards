@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/Shopify/sarama"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -43,29 +42,7 @@ func main() {
 	services := service.NewService(repository)
 	handlers := KafkaRPC.NewHandler(services)
 
-	config := sarama.NewConfig()
-	config.Consumer.Return.Errors = true
-
-	consumer, err := sarama.NewConsumer([]string{"kafka:9092"}, config)
-	if err != nil {
-		log.Fatal("Error creating consumer: ", err)
-	}
-
-	defer func() {
-		if err := consumer.Close(); err != nil {
-			log.Fatal("Error closing consumer: ", err)
-		}
-	}()
-	partitionConsumer, err := consumer.ConsumePartition("card-creation", 0, sarama.OffsetNewest)
-	if err != nil {
-		log.Fatal("Error creating partition consumer: ", err)
-	}
-
-	defer func() {
-		if err := partitionConsumer.Close(); err != nil {
-			log.Fatal("Error closing consumer: ", err)
-		}
-	}()
+	partitionConsumer := handlers.InitKafka()
 
 	// Consume messages from the Kafka topic
 	for {
