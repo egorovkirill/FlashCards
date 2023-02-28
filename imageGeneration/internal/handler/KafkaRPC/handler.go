@@ -22,13 +22,12 @@ func NewHandler(service *service.Service) *Handler {
 func (h *Handler) InitKafka() sarama.PartitionConsumer {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
-
 	consumer, err := sarama.NewConsumer([]string{"kafka:9092"}, config)
 	if err != nil {
 		log.Fatal("Error creating consumer: ", err)
 	}
 
-	partitionConsumer, err := consumer.ConsumePartition("card-creation", 0, sarama.OffsetNewest)
+	partitionConsumer, err := consumer.ConsumePartition("cards_topic", 0, sarama.OffsetNewest)
 	if err != nil {
 		log.Fatal("Error creating partition consumer: ", err)
 	}
@@ -87,7 +86,6 @@ func (h *Handler) SetTranslateToCard(cardID int, prompt string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(lookupResp)
 	if len(lookupResp.Def) > 0 {
 		if len(lookupResp.Def[0].Tr) > 0 {
 			err = h.service.SetTranslateToCard(cardID, lookupResp.Def[0].Tr[0].Text)

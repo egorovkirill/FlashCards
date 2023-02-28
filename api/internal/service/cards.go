@@ -1,20 +1,20 @@
 package service
 
 import (
-	"api/internal/repository"
+	"api/internal/repository/postgres"
 	"api/pkg/entities"
 )
 
 type CardsService struct {
-	repo repository.ListCards
+	repo postgres.ListCards
 }
 
-func NewCardsService(repo repository.ListCards) *CardsService {
+func NewCardsService(repo postgres.ListCards) *CardsService {
 
 	return &CardsService{repo: repo}
 }
 
-func (r *CardsService) CreateCard(listID int, cards entities.Cards) (int, error) {
+func (r *CardsService) CreateCard(listID int, cards entities.Cards) error {
 	return r.repo.CreateCard(listID, cards)
 }
 

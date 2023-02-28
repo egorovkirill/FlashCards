@@ -1,7 +1,7 @@
 package service
 
 import (
-	"api/internal/repository"
+	"api/internal/repository/postgres"
 	"api/pkg/entities"
 )
 
@@ -20,7 +20,7 @@ type WordsList interface {
 }
 
 type ListCards interface {
-	CreateCard(listID int, cards entities.Cards) (int, error)
+	CreateCard(listID int, cards entities.Cards) error
 	GetCardsInList(userId, listID int) ([]entities.Cards, error)
 	GetCardById(userID, listID, itemID int) ([]entities.Cards, error)
 	DeleteCardById(UserID, itemID int) error
@@ -34,7 +34,7 @@ type Service struct {
 	ListCards
 }
 
-func NewService(repos *repository.Repository) *Service {
+func NewService(repos *postgres.Repository) *Service {
 	return &Service{
 		Authenthication: NewAuthService(repos.Authenthication),
 		WordsList:       NewWordsLists(repos.WordsList),

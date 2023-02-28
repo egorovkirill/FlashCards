@@ -31,7 +31,6 @@ CREATE TABLE cards
     front text                             NOT NULL,
     back text                               NOT NULL,
     imageLink text                              NOT NULL,
-    voiceMessage text                       NOT NULL,
     CONSTRAINT pk_todo_items_id PRIMARY KEY (id)
 );
 

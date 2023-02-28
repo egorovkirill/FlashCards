@@ -1,21 +1,21 @@
 package service
 
 import (
-	"api/internal/repository"
+	"api/internal/repository/postgres"
 	"api/pkg/entities"
 	"errors"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"os"
 	"time"
 )
 
 type AuthService struct {
-	repo repository.Authenthication
+	repo postgres.Authenthication
 }
 
 type tokenClaims struct {
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 	UserId int `json:"user_id"`
 }
 
@@ -36,9 +36,9 @@ func (c *AuthService) GenerateToken(user entities.User) (string, error) {
 		return "", err
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, &tokenClaims{
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 12).Unix(),
-			IssuedAt:  time.Now().Unix(),
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 12)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 		userCRD.Id,
 	})
@@ -66,6 +66,6 @@ func (c *AuthService) ParseToken(accessToken string) (int, error) {
 	return claims.UserId, nil
 }
 
-func NewAuthService(repo repository.Authenthication) *AuthService {
+func NewAuthService(repo postgres.Authenthication) *AuthService {
 	return &AuthService{repo: repo}
 }

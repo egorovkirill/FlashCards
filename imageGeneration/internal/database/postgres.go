@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -25,9 +26,7 @@ func ConnectToPostgresDB(cfg Config) *sqlx.DB {
 		cfg.SSLMode))
 
 	if err != nil {
-		return nil
+		logrus.Fatal("Error initializing db")
 	}
-
 	return db
-
 }

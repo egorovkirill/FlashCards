@@ -12,11 +12,10 @@ type UserLists struct {
 }
 
 type Cards struct {
-	Id           int    `json:"id"`
-	Front        string `json:"front" binding:"required"`
-	Back         string `json:"back"`
-	ImageLink    string `json:"imageLink"`
-	VoiceMessage string `json:"voiceMessage"`
+	Id        int    `json:"id"`
+	Front     string `json:"front" binding:"required"`
+	Back      string `json:"back"`
+	ImageLink string `json:"imageLink"`
 }
 
 type ListCards struct {

@@ -52,7 +52,6 @@ func main() {
 			err := json.Unmarshal([]byte(string(msg.Value)), &input)
 			if err != nil {
 				logrus.Errorf("Error parsing kafka data: %s", err)
-				return
 			}
 			err = handlers.SetImageToCard(input.Id, input.Front)
 			if err != nil {
@@ -62,16 +61,15 @@ func main() {
 			err = handlers.SetTranslateToCard(input.Id, input.Front)
 			if err != nil {
 				logrus.Errorf("Error generating translate: %s", err.Error())
-				return
 			}
-
+			break
 		case err := <-partitionConsumer.Errors():
 			logrus.Errorf("Error recieve data from kafka queue: %s", err)
-			continue
+			break
+
 		}
 	}
 }
-
 func initConfig() error {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")

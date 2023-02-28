@@ -1,15 +1,15 @@
 package service
 
 import (
-	"api/internal/repository"
+	"api/internal/repository/postgres"
 	"api/pkg/entities"
 )
 
 type WordsLists struct {
-	repo repository.WordsList
+	repo postgres.WordsList
 }
 
-func NewWordsLists(repo repository.WordsList) *WordsLists {
+func NewWordsLists(repo postgres.WordsList) *WordsLists {
 	return &WordsLists{repo: repo}
 }
 
