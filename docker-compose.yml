@@ -9,8 +9,8 @@ services:
   command: /app/main
   depends_on:
    - db
-   - migrate
    - kafka
+
 
   environment:
    - DB_PASSWORD=postgres
@@ -21,7 +21,6 @@ services:
   command: >
    migrate apply 1
    --url "postgresql://postgres:postgres@db:5432/postgres?search_path=public&sslmode=disable"
-
   depends_on:
    - db
   volumes:
@@ -44,6 +43,8 @@ services:
   build: ./imageGeneration
   depends_on:
    - kafka
+   - db
+
 
  kafka:
   restart: always
