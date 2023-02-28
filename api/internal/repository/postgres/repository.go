@@ -1,7 +1,8 @@
-package repository
+package postgres
 
 import (
 	"api/pkg/entities"
+	"github.com/Shopify/sarama"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -19,7 +20,7 @@ type WordsList interface {
 }
 
 type ListCards interface {
-	CreateCard(listID int, cards entities.Cards) (int, error)
+	CreateCard(listID int, cards entities.Cards) error
 	GetCardsInList(userId, listID int) ([]entities.Cards, error)
 	GetCardById(userID, listID, itemID int) ([]entities.Cards, error)
 	DeleteCardById(userID, itemID int) error
@@ -33,10 +34,10 @@ type Repository struct {
 	ListCards
 }
 
-func NewPostgresRepository(db *sqlx.DB) *Repository {
+func NewPostgresRepository(db *sqlx.DB, kafkaAsync sarama.AsyncProducer) *Repository {
 	return &Repository{
 		Authenthication: NewAuthPostgres(db),
 		WordsList:       NewCreateListPostgres(db),
-		ListCards:       NewCardPostgres(db),
+		ListCards:       NewCardPostgres(db, kafkaAsync),
 	}
 }

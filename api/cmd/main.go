@@ -1,9 +1,10 @@
 package main
 
 import (
-	handler "api/internal/handler"
-	repository "api/internal/repository"
+	handler "api/internal/handler/http"
+	"api/internal/repository/postgres"
 	"api/internal/service"
+	"github.com/Shopify/sarama"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -20,7 +21,7 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		logrus.Fatalf("error loading local variables: %s", err.Error())
 	}
-	db := repository.ConnectToPostgresDB(repository.Config{
+	db := postgres.ConnectToPostgresDB(postgres.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
@@ -28,7 +29,19 @@ func main() {
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),
 	})
-	repos := repository.NewPostgresRepository(db)
+
+	defer db.Close()
+
+	config := sarama.NewConfig()
+	config.Producer.Return.Successes = true
+	config.Producer.Return.Errors = true
+	producer, err := sarama.NewAsyncProducer([]string{"kafka:9092"}, config)
+	if err != nil {
+		return
+	}
+
+	// Set the log retention to 7 days
+	repos := postgres.NewPostgresRepository(db, producer)
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 

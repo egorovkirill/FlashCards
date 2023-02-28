@@ -1,47 +1,62 @@
-package repository
+package postgres
 
 import (
 	"api/pkg/entities"
+	"encoding/json"
 	"fmt"
+	"github.com/Shopify/sarama"
 	"github.com/jmoiron/sqlx"
 )
 
 type CardPostgres struct {
-	db *sqlx.DB
+	db         *sqlx.DB
+	kafkaAsync sarama.AsyncProducer
 }
 
-func NewCardPostgres(db *sqlx.DB) *CardPostgres {
-	return &CardPostgres{db: db}
+func NewCardPostgres(db *sqlx.DB, kafkaAsync sarama.AsyncProducer) *CardPostgres {
+	return &CardPostgres{db: db, kafkaAsync: kafkaAsync}
 }
 
-func (c *CardPostgres) CreateCard(listID int, cards entities.Cards) (int, error) {
-	var id int
+func (c *CardPostgres) CreateCard(listID int, cards entities.Cards) error {
 	tx, err := c.db.Begin()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	query := fmt.Sprintf("INSERT INTO cards (front, back, imagelink, voicemessage) VALUES ($1, $2, $3, $4) RETURNING id")
-	row := tx.QueryRow(query, cards.Front, cards.Back, cards.ImageLink, cards.VoiceMessage)
-	if err := row.Scan(&id); err != nil {
+	query := fmt.Sprintf("INSERT INTO cards (front, back, imagelink) VALUES ($1, $2, $3) RETURNING id")
+	row := tx.QueryRow(query, cards.Front, cards.Back, cards.ImageLink)
+	if err := row.Scan(&cards.Id); err != nil {
 		_ = tx.Rollback()
-		return 0, err
+		return err
 	}
 	query = fmt.Sprintf("INSERT INTO listCards (item_id, list_id) VALUES ($1, $2)")
-	_, err = tx.Exec(query, id, listID)
+	_, err = tx.Exec(query, cards.Id, listID)
 	if err != nil {
 		_ = tx.Rollback()
-		return 0, err
+		return err
 	}
 	if err := tx.Commit(); err != nil {
-		return 0, err
+		return err
 	}
-	return id, nil
+
+	data, err := json.Marshal(cards)
+	// Write card data to Kafka topic
+	message := &sarama.ProducerMessage{
+		Topic: "cards_topic",
+		Value: sarama.StringEncoder(data),
+	}
+	c.kafkaAsync.Input() <- message
+	select {
+	case err := <-c.kafkaAsync.Errors():
+		return err
+	case _ = <-c.kafkaAsync.Successes():
+		return nil
+	}
 }
 
 func (c *CardPostgres) GetCardsInList(userID, listID int) ([]entities.Cards, error) {
 	var response []entities.Cards
-	query := fmt.Sprintf("SELECT cards.id, cards.front, cards.back, cards.imagelink, cards.voicemessage \nFROM cards\nINNER JOIN listcards lc ON lc.item_id = cards.id\nINNER JOIN userlists ul ON lc.list_id = ul.list_id\nWHERE ul.user_id = $1 AND ul.list_id = $2")
+	query := fmt.Sprintf("SELECT cards.id, cards.front, cards.back, cards.imagelink \nFROM cards\nINNER JOIN listcards lc ON lc.item_id = cards.id\nINNER JOIN userlists ul ON lc.list_id = ul.list_id\nWHERE ul.user_id = $1 AND ul.list_id = $2")
 	if err := c.db.Select(&response, query, userID, listID); err != nil {
 		return nil, err
 	}
@@ -50,7 +65,7 @@ func (c *CardPostgres) GetCardsInList(userID, listID int) ([]entities.Cards, err
 
 func (c *CardPostgres) GetCardById(userID, listID, itemID int) ([]entities.Cards, error) {
 	var response []entities.Cards
-	query := fmt.Sprintf("SELECT cards.id, cards.front, cards.back, cards.imagelink, cards.voicemessage FROM cards INNER JOIN listcards lc ON lc.item_id = cards.id INNER JOIN userlists ul ON lc.list_id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2 AND lc.item_id=$3")
+	query := fmt.Sprintf("SELECT cards.id, cards.front, cards.back, cards.imagelink FROM cards INNER JOIN listcards lc ON lc.item_id = cards.id INNER JOIN userlists ul ON lc.list_id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2 AND lc.item_id=$3")
 	if err := c.db.Select(&response, query, userID, listID, itemID); err != nil {
 		return nil, err
 	}

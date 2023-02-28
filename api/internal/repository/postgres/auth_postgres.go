@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"api/pkg/entities"
