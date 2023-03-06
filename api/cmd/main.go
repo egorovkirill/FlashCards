@@ -35,6 +35,8 @@ func main() {
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
 	config.Producer.Return.Errors = true
+	config.Producer.RequiredAcks = sarama.WaitForAll
+	config.Producer.Retry.Max = 5
 	producer, err := sarama.NewAsyncProducer([]string{"kafka:9092"}, config)
 	if err != nil {
 		return

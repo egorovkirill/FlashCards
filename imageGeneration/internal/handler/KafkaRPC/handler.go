@@ -22,6 +22,7 @@ func NewHandler(service *service.Service) *Handler {
 func (h *Handler) InitKafka() sarama.PartitionConsumer {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
+	config.Consumer.Offsets.Initial = sarama.OffsetOldest
 	consumer, err := sarama.NewConsumer([]string{"kafka:9092"}, config)
 	if err != nil {
 		log.Fatal("Error creating consumer: ", err)
