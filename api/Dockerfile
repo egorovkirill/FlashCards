@@ -3,8 +3,9 @@ EXPOSE 8000
 RUN go version
 ENV GOPATH=/
 
-WORKDIR /app
 COPY .. /app
+WORKDIR /app
+
 
 # install psql
 RUN apt-get update
