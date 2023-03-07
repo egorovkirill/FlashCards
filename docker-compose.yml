@@ -77,3 +77,24 @@ services:
   depends_on:
    - app
   restart: always
+
+ prometheus:
+  restart: always
+  image: prom/prometheus:latest
+  ports:
+   - "9090:9090"
+  volumes:
+   - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+ grafana:
+  restart: always
+  image: grafana/grafana:latest
+  ports:
+   - "3001:3001"
+  volumes:
+   - ./grafana/provisioning:/etc/grafana/provisioning
+  environment:
+   - GF_AUTH_ANONYMOUS_ENABLED=true
+   - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+  depends_on:
+   - prometheus
