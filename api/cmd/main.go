@@ -49,6 +49,8 @@ func main() {
 
 	router := handlers.InitRoutes()
 
+	go handler.UpdateCPUMetrics()
+
 	if err := router.Run(viper.GetString("PORT")); err != nil {
 		logrus.Fatalf("Error occured while running server: %s", err.Error())
 	}

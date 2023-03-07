@@ -3,6 +3,7 @@ package http
 import (
 	"api/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Handler struct {
@@ -15,6 +16,13 @@ func NewHandler(service *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	route := gin.New()
+	route.Use(PrometheusMiddleware())
+	metrics := route.Group("/prometheus")
+	{
+		metrics.GET("/metrics", func(c *gin.Context) {
+			promhttp.Handler().ServeHTTP(c.Writer, c.Request)
+		})
+	}
 	auth := route.Group("/auth")
 	{
 		auth.POST("/sign-up", h.SignUP)
