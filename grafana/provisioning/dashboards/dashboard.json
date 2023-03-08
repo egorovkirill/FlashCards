@@ -1,35 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "9.4.3"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -55,14 +24,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": ""
       },
       "fieldConfig": {
         "defaults": {
@@ -145,10 +113,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": ""
           },
           "editorMode": "builder",
-          "expr": "rate(api_requests_total{job=\"app\", endpoint!=\"/prometheus/metrics\"}[2s])",
+          "expr": "sum(rate(api_requests_total{job=\"app\", endpoint!=\"/prometheus/metrics\"}[2s]))",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -161,7 +129,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": ""
       },
       "fieldConfig": {
         "defaults": {
@@ -203,7 +171,9 @@
               "mode": "off"
             }
           },
+          "displayName": "%",
           "mappings": [],
+          "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -244,11 +214,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": ""
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "cpu_usage{core=\"0\"}",
+          "expr": "rate(cpu_usage{core=\"0\"}[$__rate_interval])*100",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -256,14 +226,14 @@
           "refId": "A"
         }
       ],
-      "title": "CPU Utilization",
+      "title": "CPU Utilization (%)",
       "transparent": true,
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": ""
       },
       "fieldConfig": {
         "defaults": {
@@ -342,10 +312,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": ""
           },
-          "editorMode": "code",
-          "expr": "rate(api_request_duration_seconds_sum{endpoint!=\"/prometheus/metrics\"}[2s])",
+          "editorMode": "builder",
+          "expr": "rate(api_request_duration_seconds_sum{endpoint!=\"/prometheus/metrics\"}[2s]) * 100",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -383,7 +353,7 @@
   },
   "timezone": "",
   "title": "Dashboard",
-  "uid": "CPK8nz-4k",
+  "uid": "",
   "version": 1,
   "weekStart": ""
 }

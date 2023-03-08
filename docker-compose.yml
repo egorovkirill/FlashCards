@@ -86,15 +86,31 @@ services:
   volumes:
    - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
+
  grafana:
   restart: always
   image: grafana/grafana:latest
   ports:
-   - "3001:3001"
+   - "3003:3000"
   volumes:
    - ./grafana/provisioning:/etc/grafana/provisioning
+   - ./grafana/datasources:/etc/grafana/provisioning/datasources
+
   environment:
    - GF_AUTH_ANONYMOUS_ENABLED=true
    - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
   depends_on:
    - prometheus
+  links:
+   - prometheus
+
+ k6:
+  image: grafana/k6:latest
+  profiles: ["k6"]
+  command: run --vus 100 --duration 1h --rps 100 /test.js
+  volumes:
+   - ./test.js:/test.js
+
+networks:
+ my-network:
+  driver: bridge

@@ -2,7 +2,7 @@ import http from "k6/http";
 import { check, sleep } from "k6";
 
 export default function() {
-    const BASE_URL = "http://localhost:8000";
+    const BASE_URL = "http://app:8000";
     const SIGNUP_ENDPOINT = "/auth/sign-up";
     const SIGNIN_ENDPOINT = "/auth/sign-in";
     const API_ENDPOINT = "/api/list";
