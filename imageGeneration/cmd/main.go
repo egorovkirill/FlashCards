@@ -10,6 +10,7 @@ import (
 	service "imageGeneration/internal/service"
 	"log"
 	"os"
+	"sync"
 )
 
 type Card struct {
@@ -44,32 +45,47 @@ func main() {
 
 	partitionConsumer := handlers.InitKafka()
 
-	// Consume messages from the Kafka topic
+	var wg sync.WaitGroup
+	numWorkers := 10 // Number of worker goroutines
+	jobCh := make(chan []byte)
+	wg.Add(numWorkers)
+	for i := 0; i < numWorkers; i++ {
+		go func() {
+			for job := range jobCh {
+				var input Card
+				err := json.Unmarshal(job, &input)
+				if err != nil {
+					logrus.Errorf("Error parsing kafka data: %s", err)
+					continue
+				}
+				err = handlers.SetImageToCard(input.Id, input.Front)
+				if err != nil {
+					logrus.Errorf("Error generating image: %s", err.Error())
+					continue
+				}
+				err = handlers.SetTranslateToCard(input.Id, input.Front)
+				if err != nil {
+					logrus.Errorf("Error generating translate: %s", err.Error())
+					continue
+				}
+			}
+			wg.Done()
+		}()
+	}
+
+	// Read messages from the Kafka topic and send them to the worker pool
 	for {
 		select {
 		case msg := <-partitionConsumer.Messages():
-			var input Card
-			err := json.Unmarshal([]byte(string(msg.Value)), &input)
-			if err != nil {
-				logrus.Errorf("Error parsing kafka data: %s", err)
-			}
-			err = handlers.SetImageToCard(input.Id, input.Front)
-			if err != nil {
-				logrus.Errorf("Error generating image: %s", err.Error())
-			}
-
-			err = handlers.SetTranslateToCard(input.Id, input.Front)
-			if err != nil {
-				logrus.Errorf("Error generating translate: %s", err.Error())
-			}
-			break
+			jobCh <- msg.Value
 		case err := <-partitionConsumer.Errors():
-			logrus.Errorf("Error recieve data from kafka queue: %s", err)
-			break
-
+			logrus.Errorf("Error receiving data from kafka queue: %s", err)
 		}
 	}
+	close(jobCh)
+	wg.Wait()
 }
+
 func initConfig() error {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
