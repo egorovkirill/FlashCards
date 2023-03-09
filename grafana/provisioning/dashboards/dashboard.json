@@ -30,7 +30,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -113,10 +113,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "sum(rate(api_requests_total{job=\"app\", endpoint!=\"/prometheus/metrics\"}[2s]))",
+          "expr": "sum(rate(api_requests_total{endpoint!=\"/prometheus/metrics\"}[2s]))",
+          "hide": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -129,7 +130,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -214,13 +215,11 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "rate(cpu_usage{core=\"0\"}[$__rate_interval])*100",
+          "editorMode": "builder",
+          "expr": "cpu_usage",
           "hide": false,
-          "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -233,7 +232,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": ""
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -295,7 +294,7 @@
         "y": 15
       },
       "id": 8,
-      "interval": "2",
+      "interval": "1",
       "options": {
         "legend": {
           "calcs": [],
@@ -312,13 +311,14 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": ""
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "rate(api_request_duration_seconds_sum{endpoint!=\"/prometheus/metrics\"}[2s]) * 100",
+          "expr": "avg(rate(api_request_duration_seconds_sum{endpoint!=\"/prometheus/metrics\"}[2s])) * 100",
+          "hide": false,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "B"
         }
       ],
       "title": "Response latency (ms)",
@@ -326,7 +326,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "10s",
+  "refresh": "1s",
   "revision": 1,
   "schemaVersion": 38,
   "style": "dark",
@@ -335,12 +335,12 @@
     "list": []
   },
   "time": {
-    "from": "now-1m",
+    "from": "now-10s",
     "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
-      "10s",
+      "1s",
       "30s",
       "1m",
       "5m",
@@ -353,7 +353,7 @@
   },
   "timezone": "",
   "title": "Dashboard",
-  "uid": "",
-  "version": 1,
+  "uid": "8U8kBnaVz",
+  "version": 2,
   "weekStart": ""
 }

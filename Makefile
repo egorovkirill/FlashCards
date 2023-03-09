@@ -7,5 +7,5 @@ down:
 	docker image prune -a -f
 	rd /s /q db\postgresql\.database
 stress:
-	start "" "http://www.localhost:3003/d/oKgDrWa4k/dashboard?orgId=1&refresh=10s"
+	start "" "http://localhost:3003/d/8U8kBnaVz/dashboard?orgId=1&refresh=5s&from=now-10s&to=now"
 	docker-compose run k6
