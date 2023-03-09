@@ -2,8 +2,11 @@ package http
 
 import (
 	"api/internal/service"
+	_ "github.com/egorovkirill/FlashCards/tree/master/api/cmd/docs"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -16,6 +19,7 @@ func NewHandler(service *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	route := gin.New()
+	route.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	route.Use(PrometheusMiddleware())
 	metrics := route.Group("/prometheus")
 	{

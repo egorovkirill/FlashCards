@@ -8,6 +8,16 @@ import (
 	"strconv"
 )
 
+// @Summary Create cards List
+// @Security ApiKeyAuth
+// @Tags lists
+// @Description create cards Lists
+// @ID create-list
+// @Accept  json
+// @Produce  json
+// @Param input body entities.Lists true "list info"
+// @Success 200 {integer} integer 1
+// @Router /api/list [post]
 func (h *Handler) CreateList(c *gin.Context) {
 	var input entities.Lists
 	userId, ok := c.Get(userCtx)
@@ -33,6 +43,16 @@ type ListData struct {
 	Lists []entities.Lists `json:"lists"`
 }
 
+// @Summary Create cards List
+// @Security ApiKeyAuth
+// @Tags lists
+// @Description create cards ListData
+// @ID create-list
+// @Accept  json
+// @Produce  json
+// @Param input body ListData true "list info"
+// @Success 200 {integer} integer 1
+// @Router /api/list [get]
 func (h *Handler) GetLists(c *gin.Context) {
 	userId, ok := c.Get(userCtx)
 	if !ok {
@@ -53,6 +73,16 @@ type Response struct {
 	Response []entities.Lists `json:"response"`
 }
 
+// @Summary Get a list by ID
+// @Security ApiKeyAuth
+// @Tags lists
+// @Description create cards Response
+// @ID create-list
+// @Accept  json
+// @Produce  json
+// @Param input body entities.Lists true "list info"
+// @Success 200 {integer} integer 1
+// @Router /api/list/{id}  [get]
 func (h *Handler) GetListById(c *gin.Context) {
 	userId, ok := c.Get(userCtx)
 	if !ok {
@@ -70,6 +100,16 @@ func (h *Handler) GetListById(c *gin.Context) {
 	})
 }
 
+// @Summary Update a list by ID
+// @Security ApiKeyAuth
+// @Tags lists
+// @Description create cards Response
+// @ID create-list
+// @Accept  json
+// @Produce  json
+// @Param input body entities.Lists true "list info"
+// @Success 200 {integer} integer 1
+// @Router /api/list/{id}  [post]
 func (h *Handler) UpdateListById(c *gin.Context) {
 	var input entities.Lists
 	if err := c.BindJSON(&input); err != nil {
@@ -97,6 +137,15 @@ func (h *Handler) UpdateListById(c *gin.Context) {
 	})
 }
 
+// @Summary Update a list by ID
+// @Security ApiKeyAuth
+// @Tags lists
+// @Description create cards Response
+// @ID create-list
+// @Accept  json
+// @Produce  json
+// @Success 200 {integer} integer 1
+// @Router /api/list/{id}  [delete]
 func (h *Handler) DeleteListById(c *gin.Context) {
 	userId, ok := c.Get(userCtx)
 	if !ok {
