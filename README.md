@@ -6,4 +6,5 @@ This project is a pet project of mine that I decided to do for backend studies.
 It is a REST API that generates a translation of an English word into Russian using Yandex Dictionary and generates an image based on that word using OpenAI's DALL-E model.
 
 ## Design:
-![design](https://user-images.githubusercontent.com/126064091/224037319-0bcc9f56-c170-4c26-864b-29e0dde03bbc.svg)
+![design drawio](https://user-images.githubusercontent.com/126064091/224037666-99907fd7-4604-448d-89b4-948dd03007c5.png)
+
