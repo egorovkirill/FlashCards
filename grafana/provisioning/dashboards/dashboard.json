@@ -314,14 +314,14 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "avg(rate(api_request_duration_seconds_sum{endpoint!=\"/prometheus/metrics\"}[2s])) * 100",
+          "expr": "rate(api_request_duration_seconds_sum{endpoint!=\"/prometheus/metrics\"}[2s])",
           "hide": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "Response latency (ms)",
+      "title": "Response latency (sec)",
       "transparent": true,
       "type": "timeseries"
     }
@@ -354,6 +354,6 @@
   "timezone": "",
   "title": "Dashboard",
   "uid": "8U8kBnaVz",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
