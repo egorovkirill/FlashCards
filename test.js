@@ -61,6 +61,10 @@ export default function() {
         title: "randomtitle"
     });
 
+    const cardPayload = JSON.stringify({
+        front: "Exhibition"
+    });
+
     const apiParams = {
         headers: {
             "Content-Type": "application/json",
@@ -78,13 +82,23 @@ export default function() {
         "api status is 200": (r) => r.status === 200
     });
 
-    for (let i = 0; i < 10000; i++) {
-        let listPOST = http.post(BASE_URL + API_ENDPOINT, apiPayload, apiParams);
-        check(listPOST, { "API request successful": (r) => r.status === 200 });
+    // Create list
+    let listPOST = http.post(BASE_URL + API_ENDPOINT, apiPayload, apiParams);
+    check(listPOST, { "API request successful": (r) => r.status === 200 });
 
-        let listGET = http.get(BASE_URL + API_ENDPOINT, apiParams);
-        check(listGET, { "API request successful": (r) => r.status === 200 });
+    // Get all lists
+    let listGET = http.get(BASE_URL + API_ENDPOINT, apiParams);
+    check(listGET, { "API request successful": (r) => r.status === 200 });
 
+    // Parse returned list id from response
+    let listId = listPOST.json("id");
+    let updateUrl = `http://app:8000/api/${listId}/card`
 
-    }
+    // Create card in list
+    let cardPOST = http.post(updateUrl, cardPayload, apiParams);
+    check(cardPOST, { "API request successful": (r) => r.status === 200 });
+    // Get all cards in list
+    let cardGET = http.get(updateUrl, apiParams);
+    check(cardGET, { "API request successful": (r) => r.status === 200 });
+
 }
