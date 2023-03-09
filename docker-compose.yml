@@ -40,7 +40,7 @@ services:
 
  image:
   restart: always
-  build: ./imageGeneration
+  build: yandex&openai
   depends_on:
    - kafka
    - db
