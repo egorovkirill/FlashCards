@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 )
 
 type Card struct {
@@ -74,10 +75,16 @@ func main() {
 	}
 
 	// Read messages from the Kafka topic and send them to the worker pool
+	counter := 0
 	for {
 		select {
 		case msg := <-partitionConsumer.Messages():
 			jobCh <- msg.Value
+			counter++
+			if counter == 49 {
+				time.Sleep(80 * time.Second)
+				counter = 0
+			}
 		case err := <-partitionConsumer.Errors():
 			logrus.Errorf("Error receiving data from kafka queue: %s", err)
 		}
