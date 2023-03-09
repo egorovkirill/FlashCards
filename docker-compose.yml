@@ -107,7 +107,7 @@ services:
  k6:
   image: grafana/k6:latest
   profiles: ["k6"]
-  command: run --vus 100 --duration 10s /test.js
+  command: run --vus 100 --duration 30s /test.js
   volumes:
    - ./test.js:/test.js
 
