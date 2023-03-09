@@ -81,24 +81,18 @@ export default function() {
     check(apiResponse, {
         "api status is 200": (r) => r.status === 200
     });
-
-    // Create list
     let listPOST = http.post(BASE_URL + API_ENDPOINT, apiPayload, apiParams);
-    check(listPOST, { "API request successful": (r) => r.status === 200 });
-
-    // Get all lists
-    let listGET = http.get(BASE_URL + API_ENDPOINT, apiParams);
-    check(listGET, { "API request successful": (r) => r.status === 200 });
-
-    // Parse returned list id from response
-    let listId = listPOST.json("id");
-    let updateUrl = `http://app:8000/api/${listId}/card`
-
-    // Create card in list
-    let cardPOST = http.post(updateUrl, cardPayload, apiParams);
-    check(cardPOST, { "API request successful": (r) => r.status === 200 });
-    // Get all cards in list
-    let cardGET = http.get(updateUrl, apiParams);
-    check(cardGET, { "API request successful": (r) => r.status === 200 });
-
+    check(listPOST, {"API request successful":(r) => r.status === 200});
+    let listId = parseInt(listPOST.json("id"));
+    let updateUrl = `http://app:8000/api/${listId}/card`;
+    for (let i=0; i<1000000000; i++) {
+        let listGET = http.get(BASE_URL + API_ENDPOINT, apiParams);
+        check(listGET, {"API request successful": (r) => r.status === 200});
+        // Create card in list
+        let cardPOST = http.post(updateUrl, cardPayload, apiParams);
+        check(cardPOST, {"API request successful": (r) => r.status === 200});
+        // Get all cards in list
+        let cardGET = http.get(updateUrl, apiParams);
+        check(cardGET, {"API request successful": (r) => r.status === 200});
+    }
 }
