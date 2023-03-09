@@ -43,3 +43,8 @@ CREATE TABLE listCards
     CONSTRAINT fk_lists_items_item_id FOREIGN KEY (item_id) REFERENCES cards(id) ON DELETE CASCADE,
     CONSTRAINT fk_lists_items_list_id FOREIGN KEY (list_id) REFERENCES userLists(id) ON DELETE CASCADE
 );
+
+CREATE INDEX ON userlists(user_id);
+CREATE INDEX ON userlists(list_id);
+CREATE INDEX ON listcards(list_id);
+CREATE INDEX ON listcards(item_id);
